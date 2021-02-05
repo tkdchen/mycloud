@@ -7,21 +7,70 @@ metadata:
     iconClass: "icon-python"
     tags: "web"
 objects:
-- kind: BuildConfig
-  apiVersion: v1
+- kind: "ImageStream"
+  apiVersion: "v1"
   metadata:
-    name: mycloud
+    name: mycloud-webapp
     annotations:
-      description: A simple Web application running in the cloud
+      openshift.io/display-name: mycloud-webapp
   spec:
-    source:
-      type: Git
-      git:
-        uri: https://github.com/tkdchen/mycloud.git
-        ref: main
-    strategy:
-      dockerStrategy:
-        dockerfilePath: Containerfile
+    tags:
+    - name: latest
+      annotations:
+        iconClass: icon-python
+      from:
+        kind: DockerImage
+        name: "quay.io/tkdchen/simplewebapp"
+      importPolicy:
+        scheduled: true
+- apiVersion: "v1"
+  kind: "DeploymentConfig"
+  metadata:
+    name: "frontend-webapp"
+  spec:
+    replicas: 2
+    # selector:
+    #   name: "frontend"
+    template:
+      metadata:
+        labels:
+          name: "mycloud-webapp"
+      spec:
+        containers:
+        - name: "mycloud-webapp"
+          image: "mycloud-webapp:latest"
+          ports:
+          - containerPort: 5000
+            protocol: "TCP"
     triggers:
     - type: "ConfigChange"
-    successfulBuildsHistoryLimit: 2
+    - type: "ImageChange"
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - "mycloud-webapp"
+        from:
+          kind: "ImageStreamTag"
+          name: "mycloud-webapp:latest"
+    strategy:
+      type: Rolling
+# - kind: BuildConfig
+#   apiVersion: v1
+#   metadata:
+#     name: mycloud
+#     annotations:
+#       description: A simple Web application running in the cloud
+#   spec:
+#     source:
+#       type: Git
+#       git:
+#         uri: https://github.com/tkdchen/mycloud.git
+#         ref: main
+#     strategy:
+#       sourceStrategy:
+#         from:
+#           kind: "ImageStreamTag"
+#           name: "mycloud-webapp:latest"
+#     triggers:
+#     - type: "ConfigChange"
+#     successfulBuildsHistoryLimit: 2
