@@ -13,4 +13,5 @@ RUN dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs \
 WORKDIR /code
 COPY main.py .
 ENV FLASK_APP main.py
+EXPOSE 5000
 CMD ["flask", "run"]
