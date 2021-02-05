@@ -13,7 +13,6 @@ objects:
     name: mycloud
     annotations:
       description: A simple Web application running in the cloud
-      builds_count: 4
   spec:
     source:
       type: Git
@@ -25,3 +24,4 @@ objects:
         dockerfilePath: Containerfile
     triggers:
     - type: "ConfigChange"
+    successfulBuildsHistoryLimit: 2
