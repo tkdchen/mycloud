@@ -13,11 +13,15 @@ objects:
     name: mycloud
     annotations:
       description: A simple Web application running in the cloud
-      builds_count: 0
+      builds_count: 4
   spec:
     source:
       type: Git
       git:
-        uri: "https://github.com/tkdchen/mycloud.git"
-        ref: "main"
-
+        uri: https://github.com/tkdchen/mycloud.git
+        ref: main
+    strategy:
+      dockerStrategy:
+        dockerfilePath: Containerfile
+    triggers:
+    - type: "ConfigChange"
