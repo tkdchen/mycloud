@@ -27,14 +27,14 @@ objects:
   kind: "DeploymentConfig"
   metadata:
     name: "frontend-webapp"
+    labels:
+      name: mycloud-webapp
   spec:
     replicas: 2
-    # selector:
-    #   name: "frontend"
     template:
       metadata:
         labels:
-          name: "mycloud-webapp"
+          name: mycloud-webapp
       spec:
         containers:
         - name: "mycloud-webapp"
@@ -57,11 +57,10 @@ objects:
 - apiVersion: v1
   kind: Service
   metadata:
-    name: mycloud
+    name: mycloud-webapp
   spec:
     selector:
-      labels:
-        name: mycloud
+      name: frontend-webapp
     ports:
     - name: web
       port: 80
@@ -71,10 +70,9 @@ objects:
   metadata:
     name: mycloud
   spec:
-    path: "/mycloud"
     to:
       kind: Service
-      name: mycloud
+      name: mycloud-webapp
 # - kind: BuildConfig
 #   apiVersion: v1
 #   metadata:
