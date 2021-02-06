@@ -54,6 +54,27 @@ objects:
           name: "mycloud-webapp:latest"
     strategy:
       type: Rolling
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: mycloud
+  spec:
+    selector:
+      labels:
+        name: mycloud
+    ports:
+    - name: web
+      port: 80
+      targetPort: 5000
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: mycloud
+  spec:
+    path: "/mycloud"
+    to:
+      kind: Service
+      name: mycloud
 # - kind: BuildConfig
 #   apiVersion: v1
 #   metadata:
