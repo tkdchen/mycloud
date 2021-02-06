@@ -30,7 +30,7 @@ objects:
     labels:
       name: mycloud-webapp
   spec:
-    replicas: 2
+    replicas: 1
     template:
       metadata:
         labels:
