@@ -7,6 +7,44 @@ metadata:
     iconClass: "icon-python"
     tags: "web"
 objects:
+- kind: ImageStream
+  apiVersion: v1
+  metadata:
+    name: utils
+    annotations:
+      openshift.io/display-name: Utility
+  spec:
+    tags:
+    - name: latest
+- kind: BuildConfig
+  apiVersion: v1
+  metadata:
+    name: utils
+    annotations:
+      description: A utility image used for testing
+  spec:
+    source:
+      dockerfile: |
+        FROM registry.fedoraproject.org/fedora:33
+        LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
+        LABEL name="MyUtility"
+        LABEL description="A utility image"
+        LABEL license="GPL-3.0-or-later"
+        LABEL version="0.1"
+        LABEL vendor="myself"
+        RUN dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs \
+          install -y httpd && dnf clean all && rm -rf /var/cache/dnf
+        EXPOSE 80
+        CMD ["httpd", "-D", "FOREGROUND"]
+    strategy:
+      type: Docker
+    output:
+      to:
+        kind: "ImageStreamTag"
+        name: "utils:latest"
+    triggers:
+    - type: "ConfigChange"
+    successfulBuildsHistoryLimit: 2
 - kind: "ImageStream"
   apiVersion: "v1"
   metadata:
@@ -23,10 +61,10 @@ objects:
         name: "quay.io/tkdchen/simplewebapp"
       importPolicy:
         scheduled: true
-- apiVersion: "v1"
-  kind: "DeploymentConfig"
+- apiVersion: v1
+  kind: DeploymentConfig
   metadata:
-    name: "frontend-webapp"
+    name: frontend-webapp
     labels:
       name: mycloud-webapp
   spec:
@@ -42,6 +80,8 @@ objects:
           ports:
           - containerPort: 5000
             protocol: "TCP"
+        - name: utils-box
+          image: "utils:latest"
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -68,7 +108,7 @@ objects:
 - apiVersion: v1
   kind: Route
   metadata:
-    name: mycloud
+    name: mycloud-route
   spec:
     to:
       kind: Service
