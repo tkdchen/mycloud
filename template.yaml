@@ -7,48 +7,6 @@ metadata:
     iconClass: "icon-python"
     tags: "web"
 objects:
-- kind: ImageStream
-  apiVersion: v1
-  metadata:
-    name: utils
-    annotations:
-      openshift.io/display-name: Utility
-  spec:
-    tags:
-    - name: latest
-- kind: BuildConfig
-  apiVersion: v1
-  metadata:
-    name: utils
-    annotations:
-      description: A utility image used for testing
-  spec:
-    source:
-      dockerfile: |
-        FROM registry.fedoraproject.org/fedora:33
-        LABEL maintainer="Chenxiong Qi <qcxhome@gmail.com>"
-        LABEL name="MyUtility"
-        LABEL description="A utility image"
-        LABEL license="GPL-3.0-or-later"
-        LABEL version="0.1"
-        LABEL vendor="myself"
-        RUN dnf --setopt=deltarpm=0 --setopt=install_weak_deps=false --nodocs \
-          install -y iputils python3 && \
-          dnf clean all && \
-          rm -rf /var/cache/dnf
-        RUN mkdir /code
-        WORKDIR /code
-        EXPOSE 8000
-        CMD ["python3", "-m", "http.server", "8000", "--bind", "0.0.0.0"]
-    strategy:
-      type: Docker
-    output:
-      to:
-        kind: "ImageStreamTag"
-        name: "utils:latest"
-    triggers:
-    - type: "ConfigChange"
-    successfulBuildsHistoryLimit: 2
 - kind: "ImageStream"
   apiVersion: "v1"
   metadata:
@@ -83,17 +41,10 @@ objects:
           image: "mycloud-webapp:latest"
           ports:
           - containerPort: 5000
-            protocol: "TCP"
           resources:
             requests:
               cpu: "500m"
               memory: "64Mi"
-        - name: "utils-box"
-          image: "172.30.1.1:5000/mycloud/utils:latest"
-          resources:
-            requests:
-              cpu: "500m"
-              memory: "32Mi"
     triggers:
     - type: "ConfigChange"
     - type: "ImageChange"
@@ -125,23 +76,3 @@ objects:
     to:
       kind: Service
       name: mycloud-webapp
-# - kind: BuildConfig
-#   apiVersion: v1
-#   metadata:
-#     name: mycloud
-#     annotations:
-#       description: A simple Web application running in the cloud
-#   spec:
-#     source:
-#       type: Git
-#       git:
-#         uri: https://github.com/tkdchen/mycloud.git
-#         ref: main
-#     strategy:
-#       sourceStrategy:
-#         from:
-#           kind: "ImageStreamTag"
-#           name: "mycloud-webapp:latest"
-#     triggers:
-#     - type: "ConfigChange"
-#     successfulBuildsHistoryLimit: 2
