@@ -14,4 +14,4 @@ WORKDIR /code
 COPY main.py .
 ENV FLASK_APP main.py
 EXPOSE 5000
-CMD ["flask", "run"]
+CMD ["flask", "run", "-h", "0.0.0.0"]
