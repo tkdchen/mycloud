@@ -112,7 +112,7 @@ objects:
     name: mycloud-webapp
   spec:
     selector:
-      name: frontend-webapp
+      name: mycloud-webapp
     ports:
     - name: web
       port: 80
